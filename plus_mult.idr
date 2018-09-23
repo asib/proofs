@@ -16,9 +16,6 @@ plus_assoc : (n, m, p : Nat) -> plus n (plus m p) = plus (plus n m) p
 plus_assoc Z m p = Refl
 plus_assoc (S k) m p = rewrite plus_assoc k m p in Refl
 
-plusReduces : (n:Nat) -> plus n Z = n
-plusReduces n = plus_commutes n Z
-
 mult_commutes : (n, m : Nat) -> n*m = m*n
 mult_commutes Z Z = Refl
 mult_commutes Z (S k) = rewrite mult_commutes Z k in Refl
@@ -60,3 +57,43 @@ plus_distributes (S k) (S j) (S i) = rewrite mult_commutes k (S j) in
                                      rewrite sym (plus_assoc k (i*k) (j*k)) in
                                      rewrite plus_commutes (k+(i*k+j*k)) k in
                                              Refl
+
+mult_assoc : (n, m, p : Nat) -> n*(m*p) = (n*m)*p
+mult_assoc Z m p = Refl
+mult_assoc (S k) Z p = rewrite mult_commutes k 0 in Refl
+mult_assoc (S k) (S j) Z = rewrite mult_commutes j 0 in
+                           rewrite mult_commutes k 0 in
+                           rewrite mult_commutes (plus j (mult k (S j))) 0 in
+                                   Refl
+mult_assoc (S k) (S j) (S i) = rewrite mult_commutes j (S i) in
+                               rewrite mult_commutes k (S j) in
+                               rewrite mult_commutes (plus j (plus k (mult j k))) (S i) in
+                               rewrite mult_commutes k (S (plus i (plus j (mult i j)))) in
+                               rewrite plus_distributes i j (k+j*k) in
+                               rewrite plus_distributes i k (j*k) in
+                               rewrite sym (plus_assoc j (k+j*k) (i*j+(i*k+(i*(j*k))))) in
+                               rewrite sym (plus_assoc k (j*k) ((i*j)+(i*k+i*(j*k)))) in
+                               rewrite plus_commutes (i*j) (i*k + i*(j*k)) in
+                               rewrite plus_assoc (j*k) (i*k + i*(j*k)) (i*j) in
+                               rewrite plus_assoc (j*k) (i*k) (i*(j*k)) in
+                               rewrite plus_commutes (j*k) (i*k) in
+                               rewrite sym (plus_assoc (i*k) (j*k) (i*(j*k))) in
+                               rewrite mult_assoc i j k in
+                               rewrite mult_commutes (i*j) k in
+                               rewrite mult_commutes j k in
+                               rewrite sym (plus_distributes k j (i*j)) in
+                               rewrite mult_commutes i k in
+                               rewrite sym (plus_distributes k i (j + i*j)) in
+                               rewrite plus_assoc k (k*(i + (j + i*j))) (i*j) in
+                               rewrite mult_commutes k (i + (j + i*j)) in
+                               rewrite plus_commutes (k + ((i + (j + i*j))*k)) (i*j) in
+                               rewrite plus_assoc i j (i*j + (k + ((i + (j + i*j))*k))) in
+                               rewrite plus_assoc (i+j) (i*j) (k + ((i + (j + i*j))*k)) in
+                               rewrite sym (plus_assoc i j (i*j)) in
+                                       Refl
+
+succInjective : (n, m : Nat) -> S n = S m -> n = m
+succInjective Z Z prf = Refl
+succInjective Z (S _) Refl impossible
+succInjective (S _) Z Refl impossible
+succInjective (S j) (S j) Refl = Refl
